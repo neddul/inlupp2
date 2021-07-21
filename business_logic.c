@@ -312,7 +312,7 @@ void bl_list_merchandise(db_t *db)
             
             loop_counter++;
             
-            if(loop_counter < 20)
+            while(loop_counter > 19)
             {
                 int ans;
                 ans = ask_question_int("continue listing?\n y/n\n");
@@ -331,7 +331,6 @@ void bl_list_merchandise(db_t *db)
         
         free(all_merch);
     }
-    
     
 }
 
