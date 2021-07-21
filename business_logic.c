@@ -1,5 +1,6 @@
 #include "headers/business_logic.h"
 #include "headers/generic_utils.h"
+#include "quicksort/q-sort.h"
 
 #include <limits.h>
 
@@ -135,6 +136,17 @@ bool bl_add_merchandise(db_t *db, char *merch_name, char *merch_desc, int price)
 //------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------
 //------------------------------ Start of remove merchandise
+merch_t *get_merch(db_t *db, char *merch_name)
+{
+    merch_t *merch;
+    elem_t hashed_merch;
+
+    ioopm_hash_table_lookup(db->merch, str_elem(merch_name), &hashed_merch);
+    
+    merch = (merch_t *) hashed_merch.ptr_val;
+    return merch;
+}
+
 
 void destroy_shelf(db_t *db, char *shelf_name)
 {
@@ -170,16 +182,7 @@ void destroy_shelf(db_t *db, char *shelf_name)
     ioopm_hash_table_remove(db->storage, str_elem(shelf_name), &result);
 }
 
-merch_t *get_merch(db_t *db, char *merch_name)
-{
-    merch_t *merch;
-    elem_t hashed_merch;
 
-    ioopm_hash_table_lookup(db->merch, str_elem(merch_name), &hashed_merch);
-    
-    merch = (merch_t *) hashed_merch.ptr_val;
-    return merch;
-}
 
 void destroy_stock(db_t *db, char *merch_name)
 {
@@ -218,6 +221,7 @@ bool destroy_merch(db_t *db, char *merch_name)
     
     ioopm_linked_list_destroy(merch->locs);
     
+    elem_t ignore_value;
     bool remove_result;        
     remove_result = ioopm_hash_table_remove(db->merch, str_elem(merch_name), &ignore_value);
     free(merch->name);
@@ -263,7 +267,7 @@ char **get_all_keys(ioopm_hash_table_t *ht)
         ioopm_list_t *list = ioopm_hash_table_keys(ht);
         
         ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
-        elem_t = res;
+        elem_t res;
         
         bool iter_has_value = ioopm_iterator_current(iter, &res);
         
@@ -298,13 +302,35 @@ void bl_list_merchandise(db_t *db)
         
         sort_keys(all_merch, no_merch);
         
-        for(int i = 0; i < no_merch; i++)
+        bool continue_listing = true;
+        int i = 0;
+        int loop_counter = 0;
+        
+        while(i < no_merch && continue_listing)
         {
             printf("%d. %s\n", i+1, all_merch[i]);
+            
+            loop_counter++;
+            
+            if(loop_counter < 20)
+            {
+                int ans;
+                ans = ask_question_int("continue listing?\n y/n\n");
+                
+                if(ans == 'y')
+                {
+                    loop_counter = 0;
+                }
+                if(ans == 'n')
+                {
+                    continue_listing = false;
+                }
+            }
+            
         }
-        free(all_merch)
+        
+        free(all_merch);
     }
-    
     
     
 }
